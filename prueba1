@@ -1,0 +1,307 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import testset as sigs 
+from scipy.fftpack import fft,ifft
+from scipy import signal
+
+# fft transformation to detect frequency spectral for each time series signal           111111
+freq_domain_signal = fft(prueba_Dataset)
+plt.stem(freq_domain_signal)
+plt.xlim(0,175)
+plt.ylim(0,15000)
+plt.show()
+
+######filtros FIR
+#vector de analisis normalizado
+signal_ecg=np.zeros(len(prueba_Dataset))
+#normalizar la señal de entrada
+for i,num in enumerate (prueba_Dataset):
+    signal_ecg[i]=float(prueba_Dataset[i]/max(prueba_Dataset))    
+#grafica normalizada
+plt.title('Señal de prueba')
+plt.plot(signal_ecg,label='Senal')
+plt.show()
+
+
+#filtro pasa bajos
+lowpass_coef=signal.firwin(600,10,pass_zero=True,nyq=101, window='blackman')
+plt.plot(lowpass_coef)
+plt.show()
+output1=signal.convolve(signal_ecg,lowpass_coef, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO POR VENTANAS  ")
+plt_arr[0].plot(signal_ecg,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output1,color='red')
+plt_arr[1].set_title("Senal filtrada PASA BAJOS 10 Hz")
+plt.show()
+
+highpass_coef=signal.firwin(155,2,nyq=100, pass_zero=False, window='blackman')
+plt.plot(highpass_coef)
+plt.show()
+output_pa=signal.convolve(signal_ecg,highpass_coef, mode='same')
+plt.plot(output_pa)
+output2=signal.convolve(signal_ecg, highpass_coef, mode='same')
+plt.title('Filtro Pasa Altos 2 Hz')
+plt.plot(output2, label='Señal Filtrada',color='red')
+plt.plot(signal_ecg, label='Senal Original', color='blue')
+plt.legend(loc='best')
+plt.show()
+
+
+
+
+
+#filtro pasa banda
+bandpas_coef=signal.firwin(91,[2,30],nyq=100,pass_zero=False,window='blackman')
+#grafica de coeficientes
+plt.plot(bandpas_coef)
+plt.show()
+###############################################################################
+#convolucion
+signal_output=signal.convolve(signal_ecg, bandpas_coef,mode='same')
+#grafica de resultados
+plt.title('Filtro Pasa Banda')
+plt.plot(signal_output, label='Señal Filtrada',color='red')
+plt.plot(signal_ecg, label='Senal Original', color='blue')
+plt.legend(loc='best')
+plt.show()
+
+""" Filtro Rechaza Bandas """
+f1, f2 = 11, 71
+br_coef=signal.firwin(91, [f1, f2], pass_zero=True ,nyq=100,window='blackman')# rechaza banda
+plt.plot(br_coef)
+plt.show()
+output_rb=signal.convolve(signal_ecg,br_coef, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO RECHAZA BANDA  ")
+plt_arr[0].plot(signal_ecg,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output_rb,color='red')
+plt_arr[1].set_title("Senal filtrada PASA BAJOS 10 a 22 Hz")
+plt.show()
+
+
+
+###############################################################################
+#analisis de frecuencia
+freq_domain_signal = fft(prueba_Dataset)
+plt.stem(signal_output)
+plt.xlim(0,100)
+plt.show()
+
+
+
+
+
+
+
+######filtros FIR
+#vector de analisis normalizado
+signal_airflow1=np.zeros(len(prueba_Dataset))
+#normalizar la señal de entrada
+for i,num in enumerate (prueba_Dataset):
+    signal_airflow1[i]=float(prueba_Dataset[i]/max(prueba_Dataset))    
+#grafica normalizada
+plt.title('Senal airflow_calibrated_100Hz')
+plt.plot(signal_airflow1,label='Senal airflow_calibrated_100Hz')
+plt.show()        
+#generación de filtro por ventana
+###############################################################################
+
+#filtro pasa bajos
+lowpass_coef2=signal.firwin(200,8,pass_zero=True,nyq=101, window='blackman')
+plt.plot(lowpass_coef2)
+plt.show()
+output2=signal.convolve(signal_airflow1,lowpass_coef2, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO POR VENTANAS  ")
+plt_arr[0].plot(signal_airflow1,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output2,color='red')
+plt_arr[1].set_title("Senal filtrada PASA BAJOS 8 Hz")
+plt.show()
+
+highpass_coef2=signal.firwin(51,3,nyq=100, pass_zero=False, window='blackman')
+plt.plot(highpass_coef2)
+plt.show()
+output_pa2=signal.convolve(signal_airflow1,highpass_coef2, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO POR VENTANAS  ")
+plt_arr[0].plot(signal_airflow1,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output_pa2,color='red')
+plt_arr[1].set_title("Senal filtrada PASA ALTOS 3 Hz")
+plt.show()
+
+#filtro pasa banda
+bandpas_coef2=signal.firwin(91,[2,30],nyq=100,pass_zero=False,window='blackman')
+plt.plot(bandpas_coef)
+plt.show()
+###############################################################################
+#convolucion
+signal_output2=signal.convolve(signal_airflow1, bandpas_coef,mode='same')
+#grafica de resultados
+plt.title('Filtro Pasa Banda')
+plt.plot(signal_output2, label='Señal Filtrada',color='red')
+plt.plot(signal_airflow1, label='Senal Original', color='blue')
+plt.legend(loc='best')
+plt.show()
+
+""" Filtro Rechaza Bandas """
+f1, f2 = 12, 50
+br_coef2=signal.firwin(31, [f1, f2], pass_zero=True ,nyq=100,window='blackman')# rechaza banda
+plt.plot(br_coef2)
+plt.show()
+output_rb2=signal.convolve(signal_airflow1,br_coef, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO RECHAZA BANDA  ")
+plt_arr[0].plot(signal_airflow1,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output_rb2,color='red')
+plt_arr[1].set_title("Senal filtrada Rechaza banda 12 a 50 Hz")
+plt.show()
+
+###############################################################################
+#analisis de frecuencia
+freq_domain_signal = fft(sigs.airflow_calibrated_100Hz)
+plt.stem(signal_output)
+plt.xlim(0,100)
+plt.show()
+
+""""""""""""""""""
+
+freq_domain_signal = fft(sigs.airflow_100Hz)
+plt.stem(freq_domain_signal)
+plt.xlim(0,400)
+plt.show()
+#valor max de x =175
+#grafica está dividida en 7 segmentos
+#frecuencia de muestreo es de 100Hz
+#50 -> 14.5 Hz
+#25-> 7.25  Hz
+#5-> 1.45   Hz
+
+
+
+
+
+######filtros FIR
+#vector de analisis normalizado
+signal_airflow2=np.zeros(len(prueba_Dataset))
+#normalizar la señal de entrada
+for i,num in enumerate (prueba_Dataset):
+    signal_airflow2[i]=float(prueba_Dataset[i]/max(prueba_Dataset))    
+#grafica normalizada
+plt.title('Senal de prueba ')
+plt.plot(signal_airflow2,label='Senal')
+plt.show()        
+#generación de filtro por ventana
+###############################################################################
+
+#filtro pasa bajos
+lowpass_coef3=signal.firwin(100,25,pass_zero=True,nyq=100, window='blackman')
+plt.plot(lowpass_coef3)
+plt.show()
+output3=signal.convolve(signal_airflow2,lowpass_coef3, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO Pasa bajos ")
+plt_arr[0].plot(signal_airflow2,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output3,color='red')
+plt_arr[1].set_title("Senal filtrada PASA BAJOS 45 Hz")
+plt.show()
+
+highpass_coef3=signal.firwin(51,3,nyq=100, pass_zero=False, window='blackman')
+plt.plot(highpass_coef3)
+plt.show()
+output_pa3=signal.convolve(signal_airflow2,highpass_coef3, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO PASA ALTOS  ")
+plt_arr[0].plot(signal_airflow2,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output_pa3,color='red')
+plt_arr[1].set_title("Senal filtrada PASA ALTOS 3 Hz")
+plt.show()
+
+#####3filtro pasa banda
+bandpas_coef3=signal.firwin(91,[2,30],nyq=100,pass_zero=False,window='blackman')
+plt.plot(bandpas_coef3)
+plt.show()
+################################################################################
+#convolucion
+signal_output3=signal.convolve(signal_airflow2, bandpas_coef3,mode='same')
+#grafica de resultados
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO PASA BANDA  ")
+plt_arr[0].plot(signal_airflow2,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(signal_output3,color='red')
+plt_arr[1].set_title("Senal filtrada PASA BANDA 2 a 30 Hz")
+plt.show()
+
+""" Filtro Rechaza Bandas """
+f1, f2 = 12, 50
+br_coef3=signal.firwin(151, [f1, f2], pass_zero=True ,nyq=100,window='blackman')# rechaza banda
+plt.plot(br_coef3)
+plt.show()
+output_rb3=signal.convolve(signal_airflow2,br_coef3, mode='same')
+f,plt_arr=plt.subplots(2,sharex=True)
+f.suptitle("FILTRO RECHAZA BANDA  ")
+plt_arr[0].plot(signal_airflow2,color='blue')
+plt_arr[0].set_title("Senal entrada")
+plt_arr[1].plot(output_rb3,color='red')
+plt_arr[1].set_title("Senal filtrada Rechaza banda 12 a 50 Hz")
+plt.show()
+
+###############################################################################
+#analisis de frecuencia
+freq_domain_signal = fft(prueba_Dataset)
+plt.stem(output_rb3)
+plt.xlim(0,100)
+plt.show()
+
+
+# transformación fft para detectar la frecuencia espectral para cada señal de serie temporal
+freq_domain_signal = fft (prueba_Dataset)
+plt.stem (prueba_Dataset)
+plt.xlim (0,100)
+plt.show ()
+#valor max de x = 175
+#grafica está dividida en 7 segmentos
+#frecuencia de muestreo es de 100Hz
+
+
+
+
+###### filtros FIR
+
+
+#vector de analisis normalizado
+signal_ecg = np.zeros (len (prueba_Dataset))
+
+#normalizar la señal de entrada
+para i, num in enumerate (prueba_Dataset):
+    signal_ecg [i] = float (prueba_Dataset [i] / max (prueba_Dataset))
+    
+#grafica normalizada
+plt.plot (prueba_Dataset)
+plt.show ()    
+    
+# generación de filtro por ventana
+################################################## #############################
+#filtro pasa banda
+bandpas_coef = signal.firwin (91, [2,30], nyq = 100, pass_zero = False, window = 'blackman')
+
+#grafica de coeficientes
+plt.plot (bandpas_coef)
+plt.show ()
+################################################## #############################
+#convolucion
+signal_output = signal.convolve (signal_ecg, bandpas_coef, mode = 'same')
+
+#grafica de resultados
+plt.plot (signal_output, color = 'red')
+plt.plot (signal_ecg, color = 'blue')
+plt.show ()
+
